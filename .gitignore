@@ -1,0 +1,5 @@
+__pycache__
+*.swp
+*.sqlite3
+.DS_Store
+lstm_model.data-00000-of-00001
