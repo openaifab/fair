@@ -6,7 +6,6 @@ from wordcloud import WordCloud, ImageColorGenerator
 import matplotlib.pyplot as plt
 import jieba
 import itertools
-from ckiptagger import data_utils, construct_dictionary, WS, POS, NER
 
 def JeibaCutWords(input_df):
     cols = ["Description"]  # 決定要選取那些列，當作文字來源(可複選)
@@ -19,18 +18,18 @@ def JeibaCutWords(input_df):
     jieba.load_userdict('./Jeiba/my.dict.txt')  # 載入自訂字典
 
     # 設定停用詞
-    with open(r'./Jeiba/stop_words.txt', 'r', encoding='utf8') as f:  
-        stops = f.read().split('\n') 
+    with open(r'./Jeiba/stop_words.txt', 'r', encoding='utf8') as f:
+        stops = f.read().split('\n')
 
     for row_index, row in enumerate(input_df.index):
         #print("[%d]" % (row))
         temp_str = str()
         one_line_cutted = list([])
         for col_index, column in enumerate(cols):
-            sentence = input_df.loc[row, column]  # 選取一列 
+            sentence = input_df.loc[row, column]  # 選取一列
             temp_str = temp_str + sentence + "," # 欄位資料合併
         #print("合併後句子: %s" % (temp_str))
-        
+
         #
         # 結巴斷詞
         #
@@ -42,7 +41,7 @@ def JeibaCutWords(input_df):
         corpus_cutted.append(one_line_cutted)  # 斷詞後的每篇廣告
         corpus_class.append(input_df.loc[row, 'Class'])
         corpus_id.append(input_df.loc[row, 'ID'])
-    
+
     # 收集完的資料存成dataframe
     temp_data = {"id": corpus_id,
                  "sentence": corpus_cutted,
@@ -69,7 +68,7 @@ def AppendKeywordCheck(input_df):
                 # 比較該詞是否為違法字詞
                 #
                 if token[1] == illegal_keyword:
-                    illegal_word_list.append(token[1]) 
+                    illegal_word_list.append(token[1])
             f.close()
 
         # 列印出含有違規字詞的廣告
@@ -80,7 +79,7 @@ def AppendKeywordCheck(input_df):
 
             # 設定該class為違法廣告
             keyword_flag[index] = 1  # VIOLATE_CLASS
-            
+
     return keyword_flag, illegal_word_list
 
 
@@ -93,7 +92,7 @@ def PlotWordCloud(words_source):
     #mask = np.array(Image.open(r"mayday_mask.png"))
 
     #其他參數請自行參考wordcloud
-    my_wordcloud = WordCloud(background_color="white",font_path=font,collocations=False, width=2400, height=2400, margin=1)  
+    my_wordcloud = WordCloud(background_color="white",font_path=font,collocations=False, width=2400, height=2400, margin=1)
     my_wordcloud.generate_from_frequencies(frequencies=Counter(words_source))
 
     #產生圖片
@@ -103,26 +102,26 @@ def PlotWordCloud(words_source):
     plt.tight_layout(pad=0)
     #顯示用
     plt.show()
-    
+
 
 def ShowWordCloud(input_df):
     legal_terms = list([])  # 儲存合法廣告的單詞
     violate_terms = list([])  # 儲存違法廣告的單詞
-    
+
     for index, row in input_df.iterrows():
         #print(row['sentence'])
-        if row['class'] == 0:  # 
+        if row['class'] == 0:  #
             for word in row['sentence']:
                 #print(word)
                 legal_terms.append(word)  # 收集合法廣告詞
-        if row['class'] == 1:  # 
+        if row['class'] == 1:  #
             for word in row['sentence']:
                 violate_terms.append(word)  # 收集違法廣告詞
     print("合法廣告文字雲:")
     PlotWordCloud(legal_terms)
     print("違法廣告文字雲:")
     PlotWordCloud(violate_terms)
-    
+
 
 #%matplotlib inline
 #from matplotlib import rcParams
@@ -143,7 +142,7 @@ def plot_confusion_matrix(cm, classes,
         print('Confusion matrix, without normalization')
 
     print(cm)
-    
+
     plt.figure(figsize=(8,4))
     #rcParams['figure.figsize'] = (8.0, 4.0)
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
@@ -164,3 +163,15 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.show()
+
+def relation_check(input_text):
+  """
+  input_text: input ad description
+  result: True if both Name and Description are mentioned
+  """
+  #rule_df = pd.read_csv(open((os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data/rules_20201116.csv')), 'r', encoding='utf8'), delimiter=',')
+  rule_df = pd.read_csv(open('./data/rules_20201116.csv', 'r', encoding='utf8'), delimiter=',')
+  for index, row in rule_df.iterrows():
+    if row['Name'] in input_text and row['Description'] in input_text:
+      return True
+  return False
