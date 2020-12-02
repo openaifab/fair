@@ -165,13 +165,43 @@ def plot_confusion_matrix(cm, classes,
     plt.show()
 
 def relation_check(input_text):
-  """
-  input_text: input ad description
-  result: True if both Name and Description are mentioned
-  """
-  #rule_df = pd.read_csv(open((os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data/rules_20201116.csv')), 'r', encoding='utf8'), delimiter=',')
-  rule_df = pd.read_csv(open('./data/rules_20201116.csv', 'r', encoding='utf8'), delimiter=',')
-  for index, row in rule_df.iterrows():
-    if row['Name'] in input_text and row['Description'] in input_text:
-      return True
-  return False
+    """
+    input_text: input ad description
+    result: True if both Name and Description are mentioned
+    """
+    #rule_df = pd.read_csv(open((os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data/relation_rules.csv')), 'r', encoding='utf8'), delimiter=',')
+    rule_df = pd.read_csv(open('./data/relation_rules.csv', 'r', encoding='utf8'), delimiter=',')
+    for index, row in rule_df.iterrows():
+        if row['Name'] in input_text and row['Description'] in input_text:
+            return True
+    return False
+
+def bad_check(input_text):
+    """
+    input_text: input ad description
+    result: True if bad words are found
+    """
+    result = False
+    #f = open((os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data/bad_rules.txt')), 'r', encoding='utf8')  # GCP
+    f = open('./data/bad_rules.txt', 'r', encoding='utf8')  # 違規字詞
+    for w in f.readlines():
+        w = w.replace('\n', '')
+        if w in input_text:
+            result = True
+    f.close()
+    return result
+
+def good_check(input_text):
+    """
+    input_text: input ad description
+    result: True if good words are found
+    """
+    result = False
+    #f = open((os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data/good_rules.txt')), 'r', encoding='utf8')  # GCP
+    f = open('./data/good_rules.txt', 'r', encoding='utf8')  # 違規字詞
+    for w in f.readlines():
+        w = w.replace('\n', '')
+        if w in input_text:
+            result = True
+    f.close()
+    return result
